@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Into the Stars | A game about sleep</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Into the Stars is a small game about the minutes before sleep. Leap through the clouds, find your own starlight.">
+<meta name="theme-color" content="#15162E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Schibsted+Grotesk:wght@400;500;600&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* Night sky, big type, the game's art up front. The call to action is a cloud you can tap. */
+:root{
+  --night:#141530; --line:rgba(214,208,240,.16); --text:#F1EEF8; --soft:#C2BEDD; --faint:#9592B8; --gold:#E9D19C;
+  --serif:"Cormorant Garamond","Noto Serif SC","Songti SC",Georgia,serif;
+  --sans:"Schibsted Grotesk","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--night);color:var(--text);font-family:var(--sans);font-size:19px;line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,p,ol,figure{margin:0}
+ol{padding:0;list-style:none}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:5px;border-radius:6px}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:clamp(22px,5vw,64px)}
+
+.top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;justify-content:space-between;align-items:center;height:72px}
+.home{text-decoration:none;font-family:var(--serif);font-size:1.3rem;color:var(--text);opacity:.85}
+.home:hover{opacity:1}
+.lang{padding:6px 15px;border:1px solid rgba(255,255,255,.35);border-radius:20px;font-size:.875rem;background:rgba(20,21,48,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lang:hover{background:rgba(255,255,255,.15)}
+
+/* hero: the art fills the screen, a blurred copy fills the sides */
+.hero{position:relative;min-height:min(100svh,940px);overflow:hidden;display:flex;align-items:center}
+.hero .blur{position:absolute;inset:-40px;background:url(/into-the-stars/img/dreamer-asleep.webp) center/cover;filter:blur(40px) brightness(.55) saturate(1.1)}
+.hero{background:radial-gradient(50% 60% at 78% 40%,rgba(120,104,210,.25),transparent 70%)}
+.hero .wrap{position:relative;z-index:2;width:100%;display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(24px,5vw,72px);align-items:center;padding-block:110px 80px}
+.hero .art{border-radius:28px;overflow:hidden;box-shadow:0 40px 90px rgba(8,8,30,.55);max-width:470px;justify-self:end}
+.hero .art img{width:100%;aspect-ratio:2/3;object-fit:cover}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(4rem,9.5vw,7.6rem);line-height:.92;letter-spacing:-.01em;text-shadow:0 0 50px rgba(220,200,255,.35)}
+html:lang(zh-CN) h1{font-weight:400;letter-spacing:.12em;font-size:clamp(3.4rem,8vw,6.2rem);line-height:1.1}
+.tag{margin-top:26px;font-family:var(--serif);font-style:italic;font-size:clamp(1.5rem,2.8vw,2.1rem);line-height:1.3;color:var(--text)}
+html:lang(zh-CN) .tag{font-style:normal;letter-spacing:.08em;font-size:clamp(1.3rem,2.4vw,1.75rem)}
+.lede{margin-top:22px;max-width:27em;font-size:1.15rem;color:var(--soft)}
+
+/* the cloud button */
+.cta{margin-top:40px}
+.cloud{position:relative;display:inline-flex;align-items:center;justify-content:center;width:clamp(270px,30vw,340px);aspect-ratio:320/150;padding-top:14px;text-decoration:none;
+  font-size:clamp(1.1rem,1.6vw,1.3rem);font-weight:600;color:#2B2866;text-align:center;line-height:1.25;
+  filter:drop-shadow(0 18px 34px rgba(120,100,230,.45));transition:transform .35s ease,filter .35s ease}
+.cloud svg{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.cloud span{position:relative;max-width:72%;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+a.cloud:hover{transform:translateY(-6px);filter:drop-shadow(0 22px 40px rgba(170,150,255,.5))}
+.cloud.wait{color:#4B4787;cursor:default}
+.cloud.wait svg{opacity:.82}
+.status{margin-top:6px;font-size:1rem;color:var(--faint)}
+.end .status{margin-inline:auto}
+
+/* sections */
+section{padding-block:clamp(72px,10vw,140px)}
+h2{font-family:var(--sans);font-weight:600;font-size:clamp(2.2rem,4.8vw,3.6rem);line-height:1.08;letter-spacing:-.02em}
+html:lang(zh-CN) h2{letter-spacing:.04em;line-height:1.25}
+.prose{margin-top:26px;max-width:34em;display:grid;gap:18px;font-size:1.2rem;color:var(--soft)}
+
+.poem{text-align:center}
+.poem p{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.7rem);line-height:1.45;color:var(--text)}
+html:lang(zh-CN) .poem p{font-size:clamp(1.35rem,2.8vw,2rem);line-height:1.9;letter-spacing:.1em}
+.poem p+p{margin-top:8px}
+.poem .src{margin-top:34px;font-family:var(--sans);font-size:1rem;color:var(--faint)}
+
+.screens{margin-top:52px;display:grid;grid-template-columns:1fr 1fr 1.9fr;align-items:start;gap:clamp(18px,3vw,40px)}
+.screens img{border-radius:30px;width:100%;box-shadow:0 30px 70px rgba(6,6,28,.5)}
+.screens .wide img{aspect-ratio:1140/1298;object-fit:cover}
+figcaption{margin-top:16px;font-size:1.05rem;color:var(--soft)}
+
+.dreams{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(36px,6vw,96px)}
+.list{border-top:1px solid var(--line)}
+.list li{display:grid;grid-template-columns:3em 1fr auto;align-items:baseline;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);font-size:1.2rem}
+.list .n{font-family:var(--serif);font-size:1.4rem;color:var(--faint)}
+.list .g{font-size:.95rem;color:var(--gold)}
+
+.made{display:grid;grid-template-columns:minmax(220px,380px) 1fr;gap:clamp(36px,6vw,96px);align-items:center}
+.made img{border-radius:28px;box-shadow:0 30px 70px rgba(6,6,28,.5)}
+.quiet{margin-top:6px;font-family:var(--serif);font-style:italic;font-size:1.6rem;line-height:1.4;color:var(--text)}
+html:lang(zh-CN) .quiet{font-style:normal;font-size:1.3rem;line-height:1.8}
+
+.end{text-align:center}
+.end h2{max-width:14em;margin-inline:auto}
+.end .cta{margin-top:44px}
+.back{display:inline-block;margin-top:48px;font-size:1.05rem;color:var(--soft);text-underline-offset:5px}
+.back:hover{color:var(--text)}
+footer{padding-block:32px 56px;border-top:1px solid var(--line);font-size:.95rem;color:var(--faint);text-align:center}
+footer p{max-width:44em;margin-inline:auto}
+
+@media (max-width:860px){
+  body{font-size:17px}
+  .hero{min-height:0;display:block}
+  .hero .blur{display:none}
+  .hero:after{display:none}
+  .hero .wrap{grid-template-columns:1fr;padding:0;gap:0}
+  .hero .art{order:-1;max-width:none;border-radius:0;box-shadow:none;position:relative}
+  .hero .art img{aspect-ratio:4/5;object-position:50% 35%}
+  .hero .art:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--night) 0%,rgba(20,21,48,.4) 30%,transparent 55%)}
+  .hero .txt{padding:0 clamp(22px,5vw,64px) 24px;margin-top:-90px;position:relative;z-index:2;text-align:center}
+  .lede{margin-inline:auto;font-size:1.1rem}
+  .prose{font-size:1.1rem}
+  .dreams,.made{grid-template-columns:1fr}
+  .made img{max-width:300px;margin-inline:auto}
+  .list li{font-size:1.1rem}
+  .screens{grid-template-columns:74% 74% 150%;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(-1*clamp(22px,5vw,64px));padding-inline:clamp(22px,5vw,64px);padding-bottom:10px}
+  .screens figure{scroll-snap-align:center}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.cloud{transition:none}}
+/* deep dream */
+.deep{position:relative;overflow:hidden;text-align:center;padding-block:clamp(96px,13vw,180px)}
+.deep-bg{position:absolute;inset:0;width:100%;height:100%}
+.deep-bg .cl line{stroke:rgba(205,195,255,.18);stroke-width:1.2}
+.deep-bg .cb circle{fill:#fff;opacity:.55}
+.deep{background:radial-gradient(60% 55% at 50% 45%,rgba(98,86,190,.28),transparent 70%)}
+.deep:after{content:"";position:absolute;inset:0;background:linear-gradient(var(--night),transparent 22%,transparent 78%,var(--night))}
+.deep .wrap{position:relative;z-index:1}
+.soon{display:inline-block;padding:6px 18px;border-radius:30px;border:1px solid rgba(233,209,156,.6);color:var(--gold);font-size:1rem;letter-spacing:.04em}
+.deep h2{margin-top:22px;font-family:var(--serif);font-weight:500;font-size:clamp(3.6rem,9vw,7rem);line-height:1;letter-spacing:-.01em;text-shadow:0 0 50px rgba(220,200,255,.4)}
+html:lang(zh-CN) .deep h2{font-weight:400;letter-spacing:.16em}
+.deep-lede{margin:26px auto 0;max-width:30em;font-size:clamp(1.2rem,2vw,1.45rem);color:var(--text)}
+.feats{list-style:none;padding:0;margin:60px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:left}
+.feats li{padding:24px 22px;border-radius:22px;background:rgba(30,30,70,.55);border:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;gap:8px;align-content:start}
+.feats b{font-size:1.2rem;font-weight:600}
+.feats span{font-size:1rem;color:var(--soft);line-height:1.55}
+.atlas{text-align:center}
+.atlas h2{font-family:var(--serif);font-weight:500;font-size:clamp(2.6rem,5.5vw,4rem)}
+html:lang(zh-CN) .atlas h2{font-weight:400;letter-spacing:.14em}
+.atlas-lede{margin:22px auto 0;max-width:32em;font-size:1.2rem;color:var(--soft)}
+.zodiac{margin-top:56px}
+.zq{font-family:var(--serif);font-style:italic;font-size:clamp(1.6rem,3vw,2.2rem)}
+html:lang(zh-CN) .zq{font-style:normal;letter-spacing:.1em}
+.zodiac ol{margin-top:30px;display:grid;grid-template-columns:repeat(6,1fr);gap:28px 12px}
+.zodiac li{display:grid;justify-items:center;gap:8px;font-size:.95rem;color:var(--soft)}
+.zodiac svg{width:78px;height:78px}
+.zodiac line{stroke:rgba(215,225,255,.55);stroke-width:1.3}
+.zodiac circle{fill:#fff;filter:drop-shadow(0 0 2px rgba(255,255,255,.9))}
+.zodiac li:hover line{stroke:var(--gold)}
+.zodiac li:hover circle{fill:var(--gold)}
+@media (max-width:860px){.feats{grid-template-columns:1fr 1fr}.zodiac ol{grid-template-columns:repeat(4,1fr)}.zodiac svg{width:62px;height:62px}}
+@media (max-width:520px){.feats{grid-template-columns:1fr}.zodiac ol{grid-template-columns:repeat(3,1fr)}}
+.starline{display:block;width:100%;height:80px;margin-block:-40px}
+.poem,.end{border-top:0}
+.tw{transform-box:fill-box;transform-origin:center;animation:tw 5s ease-in-out infinite}
+.gl{animation:gl 5s ease-in-out infinite}
+@keyframes tw{0%,100%{transform:scale(.55);opacity:.6}50%{transform:scale(1.25);opacity:1}}
+@keyframes gl{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.tw,.gl{animation:none}.run{display:none}}
+/* asset shelf */
+.shelf{margin-top:clamp(56px,7vw,88px);display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(32px,5vw,72px)}
+.grp{padding:26px 0 30px;border-top:1px solid var(--line)}
+.cat{font-size:1rem;color:var(--gold);letter-spacing:.04em}
+.row{margin-top:18px;display:flex;align-items:center;gap:20px;flex-wrap:nowrap;min-height:100px}
+.row img{width:auto;height:52px;filter:drop-shadow(0 0 14px rgba(190,170,255,.45));animation:bob 6s ease-in-out infinite;transition:scale .25s}
+.row img:hover{scale:1.15}
+.grp.m .row img{height:64px}
+.grp.g .row img{height:100px}
+@keyframes bob{0%,100%{translate:0 4px}50%{translate:0 -6px}}
+@media (max-width:860px){.shelf{grid-template-columns:1fr}.row{min-height:0;gap:11px}.row img{height:41px}.grp.m .row img{height:50px}.grp.g .row img{height:78px}}
+@media (max-width:1040px){.shelf{grid-template-columns:1fr}.row{min-height:0}}
+@media (prefers-reduced-motion:reduce){.row img{animation:none}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+  <a class="home" href="/" data-zh="安玥">Angela Sun</a>
+  <button type="button" class="lang" id="lang" aria-label="切换到中文">中文</button></div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div class="txt">
+        <h1 data-zh="入梦星空">Into the Stars</h1>
+        <p class="tag" data-zh="跃入云海，拾起属于你的星光。">Leap through the clouds, find your own starlight.</p>
+        <p class="lede" data-zh="一款关于入睡前那几分钟的小游戏。穿着睡衣的入梦人踩着云往上跳，一夜里穿过十个梦。">A small game about the few minutes before sleep. A dreamer in pajamas climbs from cloud to cloud through ten dreams in a single night.</p>
+        <div class="cta" data-play></div>
+      </div>
+      <div class="art"><img src="/into-the-stars/img/dreamer-asleep.webp" width="1024" height="1536" alt="A child in a star-print nightcap asleep on a cloud, a small smiling star and a blue spirit beside her" data-zh-alt="戴着星星睡帽的孩子睡在云上，身边是一颗微笑的小星星和一只蓝色小精灵"></div>
+    </div>
+  </div>
+
+<svg class="starline" viewBox="0 0 1200 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="gd1"><stop offset="0" stop-color="#FFE7A8" stop-opacity=".6"/><stop offset="1" stop-color="#FFE7A8" stop-opacity="0"/></radialGradient><filter id="bd1" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="3"/></filter></defs><path d="M-10 35 L50 45 L110 44 L170 37 L230 40 L290 39 L350 42 L410 44 L470 34 L530 33 L590 45 L650 39 L710 44 L770 33 L830 39 L890 43 L950 36 L1010 46 L1070 46 L1130 33 L1190 33" fill="none" stroke="#FFD98A" stroke-opacity=".55" stroke-width="5" filter="url(#bd1)"/><circle class="gl" style="animation-delay:0.0s" cx="110" cy="44" r="14" fill="url(#gd1)"/><circle class="gl" style="animation-delay:3.7s" cx="290" cy="39" r="22" fill="url(#gd1)"/><circle class="gl" style="animation-delay:2.4s" cx="470" cy="34" r="14" fill="url(#gd1)"/><circle class="gl" style="animation-delay:1.1s" cx="650" cy="39" r="22" fill="url(#gd1)"/><circle class="gl" style="animation-delay:4.8s" cx="830" cy="39" r="14" fill="url(#gd1)"/><circle class="gl" style="animation-delay:3.5s" cx="1010" cy="46" r="22" fill="url(#gd1)"/><path d="M-10 35 L50 45 L110 44 L170 37 L230 40 L290 39 L350 42 L410 44 L470 34 L530 33 L590 45 L650 39 L710 44 L770 33 L830 39 L890 43 L950 36 L1010 46 L1070 46 L1130 33 L1190 33" fill="none" stroke="#FFF1CC" stroke-width="1.6" stroke-linejoin="round"/><circle class="run" r="10" fill="url(#gd1)"><animateMotion dur="14s" repeatCount="indefinite" path="M-10 35 L50 45 L110 44 L170 37 L230 40 L290 39 L350 42 L410 44 L470 34 L530 33 L590 45 L650 39 L710 44 L770 33 L830 39 L890 43 L950 36 L1010 46 L1070 46 L1130 33 L1190 33"/></circle><circle class="run" r="2.2" fill="#fff"><animateMotion dur="14s" repeatCount="indefinite" path="M-10 35 L50 45 L110 44 L170 37 L230 40 L290 39 L350 42 L410 44 L470 34 L530 33 L590 45 L650 39 L710 44 L770 33 L830 39 L890 43 L950 36 L1010 46 L1070 46 L1130 33 L1190 33"/></circle><g fill="#FFF8E6"><path class="tw" style="animation-delay:0.0s" d="M110 39Q110.9 43.1 115 44Q110.9 44.9 110 49Q109.1 44.9 105 44Q109.1 43.1 110 39Z"/><path class="tw" style="animation-delay:3.7s" d="M290 30Q291.62 37.38 299 39Q291.62 40.62 290 48Q288.38 40.62 281 39Q288.38 37.38 290 30Z"/><path class="tw" style="animation-delay:2.4s" d="M470 29Q470.9 33.1 475 34Q470.9 34.9 470 39Q469.1 34.9 465 34Q469.1 33.1 470 29Z"/><path class="tw" style="animation-delay:1.1s" d="M650 30Q651.62 37.38 659 39Q651.62 40.62 650 48Q648.38 40.62 641 39Q648.38 37.38 650 30Z"/><path class="tw" style="animation-delay:4.8s" d="M830 34Q830.9 38.1 835 39Q830.9 39.9 830 44Q829.1 39.9 825 39Q829.1 38.1 830 34Z"/><path class="tw" style="animation-delay:3.5s" d="M1010 37Q1011.62 44.38 1019 46Q1011.62 47.62 1010 55Q1008.38 47.62 1001 46Q1008.38 44.38 1010 37Z"/></g></svg>
+  <section class="wrap poem" aria-label="Opening lines" data-zh-label="开场">
+    <p data-zh="当夜色降临，一片无尽的星空在梦境中悄然展开。">As night falls, an endless sky unfolds within your dreams.</p>
+    <p data-zh="跟随启明星，跃过柔软的云海，">Follow your guiding star, leap across soft clouds,</p>
+    <p data-zh="穿越未知的梦境，寻找散落在宇宙中的星光。">and journey through unfamiliar skies to discover scattered starlight.</p>
+    <p class="src" data-zh="游戏开场">The game's opening lines</p>
+  </section>
+
+  <section class="wrap">
+    <h2 data-zh="把睡眠变成可以玩的东西">Sleep as something you play</h2>
+    <div class="prose">
+      <p data-zh="大多数睡眠产品把睡眠当作需要解决的问题。我想反过来试试：睡眠本身能不能就是内容，是可以玩、可以享受的东西，而不是一项要完成的任务？《入梦星空》是我把睡眠做成娱乐 IP 的尝试。">Most sleep products treat sleep as a problem to fix. I wanted to try the opposite: what if sleep itself could be the content, something to play with and enjoy rather than a task to complete? Into the Stars is my attempt to turn sleep into an entertainment IP.</p>
+    </div>
+    <div class="screens">
+      <figure><img data-l src="/into-the-stars/img/start-en.webp" width="600" height="1298" loading="lazy" alt="The start screen of the game" data-zh-alt="游戏开始界面"><figcaption data-zh="开始界面">The start screen</figcaption></figure>
+      <figure><img data-l src="/into-the-stars/img/map-en.webp" width="600" height="1298" loading="lazy" alt="The map of ten dreams, from First Starlight to Crown of Dreams" data-zh-alt="十梦地图，从初入星空到梦境之巅"><figcaption data-zh="一夜里的十个梦">Ten dreams in a single night</figcaption></figure>
+      <figure class="wide"><img src="/into-the-stars/img/finish.webp" width="720" height="831" loading="lazy" alt="Gameplay: the dreamer leaps between soft clouds toward a line of starlight" data-zh-alt="游戏画面：入梦人在柔软的云朵间跳跃，前方是一条星光线"><figcaption data-zh="一个梦的尽头，会亮起一条星光线">Each dream ends at a line of starlight</figcaption></figure>
+    </div>
+    <div class="shelf">
+      <div class="grp t"><p class="cat" data-zh="道具">Dream tools</p><div class="row"><img src="/into-the-stars/img/a-it_shield.webp" width="96" height="82" alt="" loading="lazy" style="animation-delay:0.0s"><img src="/into-the-stars/img/a-it_magnet.webp" width="96" height="96" alt="" loading="lazy" style="animation-delay:5.1s"><img src="/into-the-stars/img/a-it_balloon.webp" width="86" height="96" alt="" loading="lazy" style="animation-delay:4.2s"><img src="/into-the-stars/img/a-it_chime.webp" width="96" height="89" alt="" loading="lazy" style="animation-delay:3.3s"><img src="/into-the-stars/img/a-it_compass.webp" width="87" height="96" alt="" loading="lazy" style="animation-delay:2.4s"><img src="/into-the-stars/img/a-it_cannon.webp" width="96" height="88" alt="" loading="lazy" style="animation-delay:1.5s"></div></div>
+      <div class="grp t"><p class="cat" data-zh="收集">Collectibles</p><div class="row"><img src="/into-the-stars/img/a-c_star.webp" width="64" height="63" alt="" loading="lazy" style="animation-delay:0.6s"><img src="/into-the-stars/img/a-c_dust.webp" width="64" height="67" alt="" loading="lazy" style="animation-delay:5.7s"><img src="/into-the-stars/img/a-c_core.webp" width="64" height="67" alt="" loading="lazy" style="animation-delay:4.8s"><img src="/into-the-stars/img/a-c_special.webp" width="84" height="86" alt="" loading="lazy" style="animation-delay:3.9s"><img src="/into-the-stars/img/a-c_atlas.webp" width="96" height="74" alt="" loading="lazy" style="animation-delay:3.0s"></div></div>
+      <div class="grp m"><p class="cat" data-zh="小怪">Creatures</p><div class="row"><img src="/into-the-stars/img/a-wisp.webp" width="146" height="104" alt="" loading="lazy" style="animation-delay:2.1s"><img src="/into-the-stars/img/a-bat.webp" width="150" height="86" alt="" loading="lazy" style="animation-delay:1.2s"><img src="/into-the-stars/img/a-jelly.webp" width="120" height="115" alt="" loading="lazy" style="animation-delay:0.3s"><img src="/into-the-stars/img/a-sprite.webp" width="136" height="116" alt="" loading="lazy" style="animation-delay:5.4s"></div></div>
+      <div class="grp g"><p class="cat" data-zh="守护者">Guardians</p><div class="row"><img src="/into-the-stars/img/a-skywing.webp" width="380" height="195" alt="" loading="lazy" style="animation-delay:4.5s"><img src="/into-the-stars/img/a-queen.webp" width="165" height="300" alt="" loading="lazy" style="animation-delay:3.6s"><img src="/into-the-stars/img/a-storm.webp" width="360" height="290" alt="" loading="lazy" style="animation-delay:2.7s"></div></div>
+    </div>
+  </section>
+
+  <section class="wrap dreams">
+    <div>
+      <h2 data-zh="十梦">Ten Dreams</h2>
+      <div class="prose">
+        <p data-zh="从刚闭上眼的第一梦，到天亮前的最后一梦。其中五个梦里，各有一位守护者在等你。">From the moment your eyes close to the last dream before dawn. In five of them, a guardian is waiting.</p>
+        <p data-zh="十梦是邀请制内测篇章，先用来打磨手感。完整的游戏在后面。">Ten Dreams is a private alpha, a first chapter for tuning how the game feels. The full game comes next.</p>
+      </div>
+    </div>
+    <ol class="list">
+      <li><span class="n">I</span><span data-zh="初入星空">First Starlight</span><span></span></li>
+      <li><span class="n">II</span><span data-zh="风中的星光">Starlight in the Wind</span><span class="g" data-zh="天翼队长">Skywing Captain</span></li>
+      <li><span class="n">III</span><span data-zh="云间奇遇">Cloud Wanderings</span><span></span></li>
+      <li><span class="n">IV</span><span data-zh="泡泡梦境">Bubble Reverie</span><span class="g" data-zh="泡泡女王">Bubble Queen</span></li>
+      <li><span class="n">V</span><span data-zh="流星前奏">Meteor Prelude</span><span></span></li>
+      <li><span class="n">VI</span><span data-zh="星陨试炼">Starfall Trial</span><span class="g" data-zh="流星巨兽">Meteor Beast</span></li>
+      <li><span class="n">VII</span><span data-zh="雷云来临">Thunder Rising</span><span></span></li>
+      <li><span class="n">VIII</span><span data-zh="雷霆挑战">Thunder Watch</span><span class="g" data-zh="雷霆哨兵">Thunder Sentinel</span></li>
+      <li><span class="n">IX</span><span data-zh="星空集结">Gathering Stars</span><span></span></li>
+      <li><span class="n">X</span><span data-zh="梦境之巅">Crown of Dreams</span><span class="g" data-zh="风暴之心">Stormheart</span></li>
+    </ol>
+  </section>
+
+  <section class="wrap atlas">
+    <h2 data-zh="星图">Star Atlas</h2>
+    <p class="atlas-lede" data-zh="星图属于入梦人本身，十梦和深梦共用一本。十梦里已经能找到十二星座，还有十二张隐藏的黄道卡。">The atlas belongs to the dreamer, shared by Ten Dreams and Deep Dream alike. Ten Dreams already holds the twelve signs, plus twelve hidden zodiac cards.</p>
+    <div class="zodiac">
+      <p class="zq" data-zh="你是哪一个？">Which one is yours?</p>
+      <ol>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="18" y1="62" x2="44" y2="46"/><line x1="44" y1="46" x2="70" y2="40"/><line x1="70" y1="40" x2="84" y2="50"/><circle cx="18" cy="62" r="2.6"/><circle cx="44" cy="46" r="2.6"/><circle cx="70" cy="40" r="2.6"/><circle cx="84" cy="50" r="2.6"/></svg><span data-zh="白羊座">Aries</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="50" y1="60" x2="40" y2="48"/><line x1="40" y1="48" x2="30" y2="38"/><line x1="30" y1="38" x2="14" y2="20"/><line x1="50" y1="60" x2="60" y2="50"/><line x1="60" y1="50" x2="70" y2="42"/><line x1="70" y1="42" x2="88" y2="24"/><line x1="50" y1="60" x2="46" y2="72"/><line x1="46" y1="72" x2="34" y2="86"/><circle cx="50" cy="60" r="2.6"/><circle cx="40" cy="48" r="2.6"/><circle cx="30" cy="38" r="2.6"/><circle cx="14" cy="20" r="2.6"/><circle cx="60" cy="50" r="2.6"/><circle cx="70" cy="42" r="2.6"/><circle cx="88" cy="24" r="2.6"/><circle cx="46" cy="72" r="2.6"/><circle cx="34" cy="86" r="2.6"/></svg><span data-zh="金牛座">Taurus</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="26" y1="14" x2="30" y2="40"/><line x1="30" y1="40" x2="28" y2="64"/><line x1="28" y1="64" x2="20" y2="86"/><line x1="56" y1="12" x2="58" y2="38"/><line x1="58" y1="38" x2="60" y2="62"/><line x1="60" y1="62" x2="68" y2="86"/><line x1="30" y1="40" x2="58" y2="38"/><line x1="28" y1="64" x2="60" y2="62"/><circle cx="26" cy="14" r="2.6"/><circle cx="30" cy="40" r="2.6"/><circle cx="28" cy="64" r="2.6"/><circle cx="20" cy="86" r="2.6"/><circle cx="56" cy="12" r="2.6"/><circle cx="58" cy="38" r="2.6"/><circle cx="60" cy="62" r="2.6"/><circle cx="68" cy="86" r="2.6"/></svg><span data-zh="双子座">Gemini</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="50" y1="18" x2="50" y2="46"/><line x1="50" y1="46" x2="52" y2="58"/><line x1="52" y1="58" x2="28" y2="78"/><line x1="52" y1="58" x2="74" y2="74"/><circle cx="50" cy="46" r="2.6"/><circle cx="50" cy="18" r="2.6"/><circle cx="28" cy="78" r="2.6"/><circle cx="74" cy="74" r="2.6"/><circle cx="52" cy="58" r="2.6"/></svg><span data-zh="巨蟹座">Cancer</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="24" y1="36" x2="30" y2="22"/><line x1="30" y1="22" x2="42" y2="16"/><line x1="42" y1="16" x2="52" y2="26"/><line x1="52" y1="26" x2="46" y2="42"/><line x1="46" y1="42" x2="50" y2="60"/><line x1="50" y1="60" x2="80" y2="56"/><line x1="80" y1="56" x2="92" y2="70"/><line x1="80" y1="56" x2="78" y2="40"/><line x1="78" y1="40" x2="46" y2="42"/><circle cx="24" cy="36" r="2.6"/><circle cx="30" cy="22" r="2.6"/><circle cx="42" cy="16" r="2.6"/><circle cx="52" cy="26" r="2.6"/><circle cx="46" cy="42" r="2.6"/><circle cx="50" cy="60" r="2.6"/><circle cx="80" cy="56" r="2.6"/><circle cx="92" cy="70" r="2.6"/><circle cx="78" cy="40" r="2.6"/></svg><span data-zh="狮子座">Leo</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="50" y1="10" x2="46" y2="30"/><line x1="46" y1="30" x2="30" y2="46"/><line x1="46" y1="30" x2="68" y2="42"/><line x1="30" y1="46" x2="50" y2="56"/><line x1="68" y1="42" x2="50" y2="56"/><line x1="50" y1="56" x2="56" y2="76"/><line x1="56" y1="76" x2="40" y2="90"/><line x1="68" y1="42" x2="78" y2="64"/><line x1="78" y1="64" x2="90" y2="80"/><circle cx="50" cy="10" r="2.6"/><circle cx="46" cy="30" r="2.6"/><circle cx="30" cy="46" r="2.6"/><circle cx="50" cy="56" r="2.6"/><circle cx="68" cy="42" r="2.6"/><circle cx="56" cy="76" r="2.6"/><circle cx="40" cy="90" r="2.6"/><circle cx="78" cy="64" r="2.6"/><circle cx="90" cy="80" r="2.6"/></svg><span data-zh="处女座">Virgo</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="50" y1="18" x2="24" y2="46"/><line x1="50" y1="18" x2="76" y2="46"/><line x1="24" y1="46" x2="76" y2="46"/><line x1="24" y1="46" x2="30" y2="82"/><line x1="76" y1="46" x2="70" y2="84"/><circle cx="50" cy="18" r="2.6"/><circle cx="24" cy="46" r="2.6"/><circle cx="76" cy="46" r="2.6"/><circle cx="30" cy="82" r="2.6"/><circle cx="70" cy="84" r="2.6"/></svg><span data-zh="天秤座">Libra</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="14" y1="18" x2="32" y2="36"/><line x1="20" y1="32" x2="32" y2="36"/><line x1="16" y1="46" x2="32" y2="36"/><line x1="32" y1="36" x2="46" y2="46"/><line x1="46" y1="46" x2="56" y2="58"/><line x1="56" y1="58" x2="60" y2="72"/><line x1="60" y1="72" x2="68" y2="84"/><line x1="68" y1="84" x2="80" y2="86"/><line x1="80" y1="86" x2="88" y2="76"/><line x1="88" y1="76" x2="84" y2="64"/><circle cx="14" cy="18" r="2.6"/><circle cx="20" cy="32" r="2.6"/><circle cx="16" cy="46" r="2.6"/><circle cx="32" cy="36" r="2.6"/><circle cx="46" cy="46" r="2.6"/><circle cx="56" cy="58" r="2.6"/><circle cx="60" cy="72" r="2.6"/><circle cx="68" cy="84" r="2.6"/><circle cx="80" cy="86" r="2.6"/><circle cx="88" cy="76" r="2.6"/><circle cx="84" cy="64" r="2.6"/></svg><span data-zh="天蝎座">Scorpius</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="30" y1="60" x2="44" y2="44"/><line x1="44" y1="44" x2="60" y2="50"/><line x1="60" y1="50" x2="70" y2="66"/><line x1="70" y1="66" x2="50" y2="72"/><line x1="50" y1="72" x2="34" y2="76"/><line x1="34" y1="76" x2="30" y2="60"/><line x1="44" y1="44" x2="56" y2="28"/><line x1="60" y1="50" x2="56" y2="28"/><line x1="70" y1="66" x2="80" y2="48"/><line x1="30" y1="60" x2="18" y2="50"/><circle cx="30" cy="60" r="2.6"/><circle cx="44" cy="44" r="2.6"/><circle cx="60" cy="50" r="2.6"/><circle cx="70" cy="66" r="2.6"/><circle cx="50" cy="72" r="2.6"/><circle cx="34" cy="76" r="2.6"/><circle cx="56" cy="28" r="2.6"/><circle cx="80" cy="48" r="2.6"/><circle cx="18" cy="50" r="2.6"/></svg><span data-zh="射手座">Sagittarius</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="14" y1="24" x2="26" y2="36"/><line x1="26" y1="36" x2="50" y2="82"/><line x1="50" y1="82" x2="86" y2="46"/><line x1="86" y1="46" x2="70" y2="40"/><line x1="70" y1="40" x2="46" y2="36"/><line x1="46" y1="36" x2="26" y2="36"/><circle cx="14" cy="24" r="2.6"/><circle cx="26" cy="36" r="2.6"/><circle cx="50" cy="82" r="2.6"/><circle cx="86" cy="46" r="2.6"/><circle cx="70" cy="40" r="2.6"/><circle cx="46" cy="36" r="2.6"/></svg><span data-zh="摩羯座">Capricornus</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="18" y1="20" x2="40" y2="30"/><line x1="40" y1="30" x2="54" y2="24"/><line x1="54" y1="24" x2="62" y2="36"/><line x1="62" y1="36" x2="72" y2="28"/><line x1="40" y1="30" x2="50" y2="52"/><line x1="50" y1="52" x2="44" y2="70"/><line x1="44" y1="70" x2="60" y2="86"/><line x1="60" y1="86" x2="82" y2="76"/><circle cx="18" cy="20" r="2.6"/><circle cx="40" cy="30" r="2.6"/><circle cx="54" cy="24" r="2.6"/><circle cx="62" cy="36" r="2.6"/><circle cx="72" cy="28" r="2.6"/><circle cx="50" cy="52" r="2.6"/><circle cx="44" cy="70" r="2.6"/><circle cx="60" cy="86" r="2.6"/><circle cx="82" cy="76" r="2.6"/></svg><span data-zh="水瓶座">Aquarius</span></li>
+          <li><svg viewBox="0 0 100 100" aria-hidden="true"><line x1="86" y1="18" x2="78" y2="30"/><line x1="78" y1="30" x2="70" y2="46"/><line x1="70" y1="46" x2="60" y2="60"/><line x1="60" y1="60" x2="50" y2="82"/><line x1="50" y1="82" x2="36" y2="66"/><line x1="36" y1="66" x2="22" y2="56"/><line x1="22" y1="56" x2="12" y2="46"/><line x1="12" y1="46" x2="8" y2="34"/><line x1="8" y1="34" x2="16" y2="26"/><line x1="16" y1="26" x2="24" y2="36"/><line x1="24" y1="36" x2="12" y2="46"/><circle cx="86" cy="18" r="2.6"/><circle cx="78" cy="30" r="2.6"/><circle cx="70" cy="46" r="2.6"/><circle cx="60" cy="60" r="2.6"/><circle cx="50" cy="82" r="2.6"/><circle cx="36" cy="66" r="2.6"/><circle cx="22" cy="56" r="2.6"/><circle cx="12" cy="46" r="2.6"/><circle cx="8" cy="34" r="2.6"/><circle cx="16" cy="26" r="2.6"/><circle cx="24" cy="36" r="2.6"/></svg><span data-zh="双鱼座">Pisces</span></li>
+        </ol>
+    </div>
+  </section>
+
+  <section class="deep">
+    <svg class="deep-bg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="#fff"><circle cx="389" cy="121" r="0.7" opacity="0.29"/><circle cx="643" cy="293" r="0.7" opacity="0.80"/><circle cx="258" cy="69" r="1.4" opacity="0.29"/><circle cx="109" cy="340" r="1.8" opacity="0.32"/><circle cx="268" cy="502" r="0.7" opacity="0.60"/><circle cx="476" cy="781" r="0.7" opacity="0.58"/><circle cx="160" cy="335" r="1.8" opacity="0.32"/><circle cx="370" cy="653" r="0.9" opacity="0.31"/><circle cx="685" cy="150" r="0.7" opacity="0.58"/><circle cx="75" cy="48" r="0.9" opacity="0.55"/><circle cx="638" cy="622" r="1.4" opacity="0.60"/><circle cx="544" cy="240" r="0.9" opacity="0.67"/><circle cx="293" cy="460" r="1.8" opacity="0.55"/><circle cx="412" cy="359" r="1.8" opacity="0.84"/><circle cx="142" cy="334" r="1.1" opacity="0.34"/><circle cx="587" cy="31" r="0.7" opacity="0.71"/><circle cx="688" cy="700" r="1.1" opacity="0.45"/><circle cx="420" cy="397" r="1.4" opacity="0.29"/><circle cx="112" cy="216" r="0.7" opacity="0.29"/><circle cx="842" cy="518" r="1.4" opacity="0.42"/><circle cx="463" cy="535" r="0.7" opacity="0.81"/><circle cx="427" cy="489" r="1.4" opacity="0.29"/><circle cx="922" cy="103" r="0.9" opacity="0.49"/><circle cx="1100" cy="397" r="0.9" opacity="0.52"/><circle cx="659" cy="707" r="1.4" opacity="0.77"/><circle cx="334" cy="332" r="1.1" opacity="0.66"/><circle cx="457" cy="185" r="0.7" opacity="0.36"/><circle cx="278" cy="187" r="1.4" opacity="0.75"/><circle cx="219" cy="226" r="0.9" opacity="0.50"/><circle cx="443" cy="453" r="0.9" opacity="0.66"/><circle cx="619" cy="494" r="0.7" opacity="0.52"/><circle cx="1045" cy="762" r="1.8" opacity="0.49"/><circle cx="479" cy="83" r="1.4" opacity="0.29"/><circle cx="81" cy="167" r="0.9" opacity="0.32"/><circle cx="721" cy="82" r="1.8" opacity="0.34"/><circle cx="122" cy="291" r="0.7" opacity="0.29"/><circle cx="250" cy="301" r="1.1" opacity="0.82"/><circle cx="723" cy="379" r="0.7" opacity="0.76"/><circle cx="1192" cy="373" r="1.4" opacity="0.44"/><circle cx="173" cy="600" r="1.1" opacity="0.54"/><circle cx="830" cy="413" r="0.9" opacity="0.82"/><circle cx="634" cy="117" r="1.8" opacity="0.80"/><circle cx="910" cy="238" r="0.7" opacity="0.67"/><circle cx="313" cy="293" r="0.9" opacity="0.46"/><circle cx="267" cy="433" r="1.8" opacity="0.45"/><circle cx="268" cy="649" r="0.9" opacity="0.73"/><circle cx="982" cy="592" r="0.9" opacity="0.37"/><circle cx="591" cy="585" r="0.7" opacity="0.72"/><circle cx="567" cy="155" r="1.8" opacity="0.82"/><circle cx="537" cy="750" r="1.1" opacity="0.82"/><circle cx="438" cy="176" r="0.9" opacity="0.53"/><circle cx="405" cy="386" r="1.8" opacity="0.75"/><circle cx="575" cy="522" r="0.7" opacity="0.75"/><circle cx="144" cy="311" r="0.9" opacity="0.54"/><circle cx="214" cy="631" r="1.1" opacity="0.30"/><circle cx="1135" cy="577" r="1.4" opacity="0.49"/><circle cx="1136" cy="580" r="0.9" opacity="0.85"/><circle cx="33" cy="473" r="1.4" opacity="0.73"/><circle cx="175" cy="661" r="1.4" opacity="0.64"/><circle cx="420" cy="439" r="0.9" opacity="0.26"/><circle cx="959" cy="581" r="0.7" opacity="0.57"/><circle cx="1120" cy="347" r="0.9" opacity="0.75"/><circle cx="253" cy="201" r="1.1" opacity="0.55"/><circle cx="916" cy="261" r="1.8" opacity="0.50"/><circle cx="157" cy="728" r="1.1" opacity="0.79"/><circle cx="795" cy="652" r="1.8" opacity="0.50"/><circle cx="1101" cy="401" r="1.8" opacity="0.34"/><circle cx="613" cy="698" r="0.9" opacity="0.62"/><circle cx="931" cy="120" r="0.9" opacity="0.53"/><circle cx="870" cy="445" r="1.1" opacity="0.66"/><circle cx="637" cy="386" r="0.7" opacity="0.78"/><circle cx="68" cy="153" r="0.7" opacity="0.71"/><circle cx="609" cy="449" r="0.7" opacity="0.52"/><circle cx="735" cy="404" r="1.8" opacity="0.37"/><circle cx="333" cy="407" r="1.4" opacity="0.55"/><circle cx="297" cy="419" r="1.1" opacity="0.80"/><circle cx="1071" cy="162" r="1.4" opacity="0.33"/><circle cx="146" cy="354" r="0.7" opacity="0.65"/><circle cx="514" cy="170" r="1.1" opacity="0.72"/><circle cx="1076" cy="124" r="1.1" opacity="0.34"/><circle cx="1059" cy="774" r="0.9" opacity="0.70"/><circle cx="113" cy="708" r="0.9" opacity="0.84"/><circle cx="999" cy="129" r="1.4" opacity="0.85"/><circle cx="485" cy="337" r="1.1" opacity="0.44"/><circle cx="867" cy="16" r="1.8" opacity="0.53"/><circle cx="844" cy="307" r="1.8" opacity="0.62"/><circle cx="615" cy="51" r="0.9" opacity="0.83"/><circle cx="126" cy="212" r="0.7" opacity="0.79"/><circle cx="218" cy="605" r="1.4" opacity="0.76"/><circle cx="811" cy="757" r="1.4" opacity="0.34"/><circle cx="1103" cy="456" r="1.1" opacity="0.30"/><circle cx="69" cy="551" r="1.4" opacity="0.79"/><circle cx="323" cy="13" r="0.7" opacity="0.73"/><circle cx="100" cy="685" r="0.7" opacity="0.41"/><circle cx="146" cy="9" r="1.8" opacity="0.50"/><circle cx="1099" cy="497" r="0.7" opacity="0.57"/><circle cx="286" cy="88" r="0.9" opacity="0.41"/><circle cx="217" cy="746" r="1.1" opacity="0.57"/><circle cx="247" cy="357" r="0.9" opacity="0.41"/><circle cx="964" cy="796" r="0.7" opacity="0.26"/><circle cx="880" cy="441" r="0.9" opacity="0.56"/><circle cx="295" cy="358" r="1.4" opacity="0.64"/><circle cx="655" cy="711" r="1.8" opacity="0.43"/><circle cx="258" cy="184" r="0.9" opacity="0.75"/><circle cx="848" cy="509" r="1.4" opacity="0.84"/><circle cx="1178" cy="670" r="0.7" opacity="0.29"/><circle cx="889" cy="204" r="0.9" opacity="0.28"/><circle cx="798" cy="305" r="1.8" opacity="0.65"/><circle cx="338" cy="194" r="1.1" opacity="0.28"/><circle cx="222" cy="215" r="0.7" opacity="0.41"/><circle cx="1154" cy="778" r="1.8" opacity="0.44"/><circle cx="41" cy="706" r="0.9" opacity="0.46"/><circle cx="1" cy="305" r="1.4" opacity="0.42"/><circle cx="787" cy="199" r="0.7" opacity="0.30"/><circle cx="980" cy="115" r="1.8" opacity="0.28"/><circle cx="27" cy="243" r="0.9" opacity="0.30"/><circle cx="1149" cy="683" r="0.9" opacity="0.64"/><circle cx="859" cy="703" r="1.4" opacity="0.71"/><circle cx="865" cy="395" r="1.1" opacity="0.68"/><circle cx="772" cy="35" r="1.8" opacity="0.63"/><circle cx="881" cy="650" r="0.9" opacity="0.80"/><circle cx="903" cy="455" r="0.7" opacity="0.75"/><circle cx="701" cy="714" r="0.9" opacity="0.30"/><circle cx="50" cy="510" r="0.7" opacity="0.48"/><circle cx="542" cy="41" r="0.7" opacity="0.63"/><circle cx="817" cy="391" r="0.7" opacity="0.52"/><circle cx="84" cy="746" r="1.8" opacity="0.31"/><circle cx="631" cy="597" r="1.4" opacity="0.40"/><circle cx="89" cy="212" r="0.9" opacity="0.39"/><circle cx="780" cy="368" r="1.4" opacity="0.30"/><circle cx="1093" cy="230" r="0.7" opacity="0.62"/><circle cx="771" cy="62" r="0.9" opacity="0.45"/><circle cx="782" cy="554" r="1.8" opacity="0.59"/><circle cx="15" cy="49" r="1.1" opacity="0.83"/><circle cx="119" cy="174" r="1.4" opacity="0.42"/><circle cx="620" cy="372" r="1.4" opacity="0.71"/><circle cx="1192" cy="439" r="1.1" opacity="0.84"/><circle cx="1124" cy="14" r="1.4" opacity="0.30"/><circle cx="608" cy="796" r="1.1" opacity="0.48"/><circle cx="1100" cy="744" r="0.7" opacity="0.60"/><circle cx="170" cy="419" r="1.1" opacity="0.33"/><circle cx="984" cy="407" r="0.7" opacity="0.67"/><circle cx="278" cy="718" r="1.4" opacity="0.49"/><circle cx="191" cy="760" r="1.4" opacity="0.49"/><circle cx="873" cy="333" r="1.4" opacity="0.44"/><circle cx="1008" cy="1" r="1.1" opacity="0.75"/><circle cx="144" cy="741" r="0.7" opacity="0.79"/><circle cx="348" cy="298" r="1.4" opacity="0.48"/><circle cx="1044" cy="61" r="1.4" opacity="0.70"/><circle cx="1025" cy="225" r="0.7" opacity="0.75"/><circle cx="343" cy="748" r="0.9" opacity="0.83"/><circle cx="523" cy="252" r="1.1" opacity="0.72"/><circle cx="513" cy="23" r="1.4" opacity="0.80"/><circle cx="1129" cy="439" r="0.7" opacity="0.28"/><circle cx="879" cy="361" r="0.9" opacity="0.64"/><circle cx="343" cy="39" r="1.8" opacity="0.33"/><circle cx="567" cy="275" r="1.1" opacity="0.40"/><circle cx="886" cy="522" r="1.4" opacity="0.64"/><circle cx="361" cy="446" r="1.4" opacity="0.32"/><circle cx="772" cy="60" r="1.8" opacity="0.79"/><circle cx="596" cy="176" r="1.1" opacity="0.85"/><circle cx="540" cy="112" r="0.9" opacity="0.40"/><circle cx="210" cy="445" r="1.1" opacity="0.39"/><circle cx="310" cy="456" r="0.7" opacity="0.70"/><circle cx="495" cy="331" r="1.8" opacity="0.38"/><circle cx="324" cy="602" r="1.4" opacity="0.42"/><circle cx="1161" cy="101" r="1.8" opacity="0.57"/><circle cx="948" cy="679" r="0.7" opacity="0.41"/><circle cx="298" cy="320" r="1.4" opacity="0.51"/><circle cx="374" cy="651" r="0.7" opacity="0.33"/></g><g class="cl"><line x1="170" y1="170" x2="260" y2="120"/><line x1="260" y1="120" x2="330" y2="210"/><line x1="330" y1="210" x2="250" y2="290"/><line x1="250" y1="290" x2="180" y2="250"/><line x1="180" y1="250" x2="170" y2="170"/><line x1="880" y1="140" x2="960" y2="230"/><line x1="960" y1="230" x2="1040" y2="320"/><line x1="880" y1="320" x2="960" y2="230"/><line x1="960" y1="230" x2="960" y2="400"/></g><g class="cb"><circle cx="170" cy="170" r="3"/><circle cx="260" cy="120" r="3"/><circle cx="330" cy="210" r="3"/><circle cx="250" cy="290" r="3"/><circle cx="180" cy="250" r="3"/><circle cx="880" cy="140" r="3"/><circle cx="960" cy="230" r="3"/><circle cx="1040" cy="320" r="3"/><circle cx="960" cy="400" r="3"/><circle cx="880" cy="320" r="3"/></g></svg>
+    <div class="wrap">
+      <p class="soon" data-zh="敬请期待">Coming next</p>
+      <h2 data-zh="深梦">Deep Dream</h2>
+      <p class="deep-lede" data-zh="一个完整的动作肉鸽世界。每一夜的路线都不一样，你越走越深，夜空也越来越大。">A full action roguelike world. Every night takes a different path, and the deeper you go, the wider the sky becomes.</p>
+      <ul class="feats">
+        <li><b data-zh="升级与进化">Level up and evolve</b><span data-zh="入梦人和星光会一路成长，变成新的样子。">Your dreamer and their starlight grow stronger and take new forms.</span></li>
+        <li><b data-zh="构筑">Build your run</b><span data-zh="把道具和能力组合成只属于你的流派。">Combine tools and powers into a build that is yours alone.</span></li>
+        <li><b data-zh="排行榜">Leaderboards</b><span data-zh="和其他入梦人比一比，谁在夜空里走得更远。">See how far you climbed next to other dreamers.</span></li>
+        <li><b data-zh="88 星座">All 88 constellations</b><span data-zh="十二星座之外，整片夜空都等你去点亮。">Beyond the twelve signs, the whole night sky is waiting to be lit.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="wrap made">
+    <img src="/into-the-stars/img/dreamer-leap.webp" width="1024" height="1536" loading="lazy" alt="The dreamer leaping from a cloud toward a glowing star" data-zh-alt="入梦人从云上跃向一颗发光的星星">
+    <div>
+      <h2 data-zh="它是怎么做出来的">How it is made</h2>
+      <div class="prose">
+        <p data-zh="《入梦星空》由我独立设计，所有核心玩法与游戏机制均为原创。游戏最初在 Godot 4.7.2 中开发，全程借助 AI 辅助编程。过去三个月，我几乎每天都在钻研它的工程实现。">I am independently designing Into the Stars, and all of its core gameplay mechanics are my own. I first built it in Godot 4.7.2, with AI-assisted coding throughout, and for the past three months I have worked on its engineering almost every day.</p>
+        <p data-zh="当 AI 始终修不好抬头显示界面架构里的一个程序错误时，我自己重构了它：把屏幕顶部的三个元素放到场景树的同一层级。">When AI couldn't fix a bug in the HUD's architecture, I restructured it myself, placing the three top-screen elements at the same level of the scene tree.</p>
+        <p data-zh="目前开放的「十梦」邀请制内测是用 HTML/JavaScript 实现的浏览器试玩版。">The current Ten Dreams private alpha is implemented in HTML and JavaScript for browser-based playtesting.</p>
+        <p class="quiet" data-zh="这个过程让我非常兴奋，也让我看清：要实现更复杂的构想，我还需要更扎实的技术功底。">The process thrilled me, and it showed me how much technical depth I still need to bring more complex ideas to life.</p>
+      </div>
+    </div>
+  </section>
+
+<svg class="starline" viewBox="0 0 1200 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="gd2"><stop offset="0" stop-color="#FFE7A8" stop-opacity=".6"/><stop offset="1" stop-color="#FFE7A8" stop-opacity="0"/></radialGradient><filter id="bd2" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="3"/></filter></defs><path d="M-10 46 L50 46 L110 34 L170 34 L230 45 L290 43 L350 42 L410 37 L470 41 L530 41 L590 41 L650 35 L710 39 L770 39 L830 43 L890 47 L950 46 L1010 41 L1070 39 L1130 37 L1190 34" fill="none" stroke="#FFD98A" stroke-opacity=".55" stroke-width="5" filter="url(#bd2)"/><circle class="gl" style="animation-delay:0.0s" cx="110" cy="34" r="14" fill="url(#gd2)"/><circle class="gl" style="animation-delay:3.7s" cx="290" cy="43" r="22" fill="url(#gd2)"/><circle class="gl" style="animation-delay:2.4s" cx="470" cy="41" r="14" fill="url(#gd2)"/><circle class="gl" style="animation-delay:1.1s" cx="650" cy="35" r="22" fill="url(#gd2)"/><circle class="gl" style="animation-delay:4.8s" cx="830" cy="43" r="14" fill="url(#gd2)"/><circle class="gl" style="animation-delay:3.5s" cx="1010" cy="41" r="22" fill="url(#gd2)"/><path d="M-10 46 L50 46 L110 34 L170 34 L230 45 L290 43 L350 42 L410 37 L470 41 L530 41 L590 41 L650 35 L710 39 L770 39 L830 43 L890 47 L950 46 L1010 41 L1070 39 L1130 37 L1190 34" fill="none" stroke="#FFF1CC" stroke-width="1.6" stroke-linejoin="round"/><circle class="run" r="10" fill="url(#gd2)"><animateMotion dur="14s" repeatCount="indefinite" path="M-10 46 L50 46 L110 34 L170 34 L230 45 L290 43 L350 42 L410 37 L470 41 L530 41 L590 41 L650 35 L710 39 L770 39 L830 43 L890 47 L950 46 L1010 41 L1070 39 L1130 37 L1190 34"/></circle><circle class="run" r="2.2" fill="#fff"><animateMotion dur="14s" repeatCount="indefinite" path="M-10 46 L50 46 L110 34 L170 34 L230 45 L290 43 L350 42 L410 37 L470 41 L530 41 L590 41 L650 35 L710 39 L770 39 L830 43 L890 47 L950 46 L1010 41 L1070 39 L1130 37 L1190 34"/></circle><g fill="#FFF8E6"><path class="tw" style="animation-delay:0.0s" d="M110 29Q110.9 33.1 115 34Q110.9 34.9 110 39Q109.1 34.9 105 34Q109.1 33.1 110 29Z"/><path class="tw" style="animation-delay:3.7s" d="M290 34Q291.62 41.38 299 43Q291.62 44.62 290 52Q288.38 44.62 281 43Q288.38 41.38 290 34Z"/><path class="tw" style="animation-delay:2.4s" d="M470 36Q470.9 40.1 475 41Q470.9 41.9 470 46Q469.1 41.9 465 41Q469.1 40.1 470 36Z"/><path class="tw" style="animation-delay:1.1s" d="M650 26Q651.62 33.38 659 35Q651.62 36.62 650 44Q648.38 36.62 641 35Q648.38 33.38 650 26Z"/><path class="tw" style="animation-delay:4.8s" d="M830 38Q830.9 42.1 835 43Q830.9 43.9 830 48Q829.1 43.9 825 43Q829.1 42.1 830 38Z"/><path class="tw" style="animation-delay:3.5s" d="M1010 32Q1011.62 39.38 1019 41Q1011.62 42.62 1010 50Q1008.38 42.62 1001 41Q1008.38 39.38 1010 32Z"/></g></svg>
+  <section class="wrap end">
+    <h2 data-zh="每一次跃起，都是一场新的发现。">Every leap brings a new discovery.</h2>
+    <div class="cta" data-play></div>
+    <p><a class="back" href="/" data-zh="回到四个项目">Back to all four projects</a></p>
+  </section>
+</main>
+
+<footer class="wrap"><p data-zh="《入梦星空》仍在开发中，目标是 2027 年正式上线。十梦目前为邀请制内测，深梦正在制作中，最终内容可能会有调整。星座连线为示意画法。">Into the Stars is still in development, aiming for a full public release in 2027. Ten Dreams is in private alpha, and Deep Dream is being made, so details may change. Constellation figures are stylised.</p></footer>
+
+<script>
+(function(){
+  /* Paste the private alpha link between the quotes. While it is empty, the button reads "opening soon". */
+  var ALPHA_URL = "https://into-the-stars-game-alpha.vercel.app/";
+
+  var C='M58 140C28 140 8 124 8 102 8 80 26 66 48 66 50 66 52 66 54 67 56 40 78 22 104 24 116 8 136 0 158 0 186 0 208 16 216 38 222 36 228 35 234 35 262 35 284 54 286 80 302 86 312 100 312 116 312 130 302 140 284 140Z';
+  var cloud='<svg viewBox="0 -2 320 158" aria-hidden="true"><defs>'+
+    '<linearGradient id="cf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".92"/><stop offset=".5" stop-color="#EDE4FF" stop-opacity=".82"/><stop offset="1" stop-color="#C9B8F5" stop-opacity=".78"/></linearGradient>'+
+    '<radialGradient id="ch" cx=".42" cy=".18" r=".55"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>'+
+    '<linearGradient id="cs" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#7E6BD0" stop-opacity="0"/><stop offset="1" stop-color="#7E6BD0" stop-opacity=".45"/></linearGradient>'+
+    '<clipPath id="cc"><path d="'+C+'"/></clipPath></defs>'+
+    '<path d="'+C+'" transform="translate(0 7)" fill="#6B5BC2" fill-opacity=".45"/>'+
+    '<path d="'+C+'" fill="url(#cf)"/>'+
+    '<g clip-path="url(#cc)"><path d="'+C+'" fill="url(#cs)"/><ellipse cx="150" cy="30" rx="120" ry="44" fill="url(#ch)"/><ellipse cx="70" cy="86" rx="40" ry="18" fill="url(#ch)" opacity=".6"/></g>'+
+    '<path d="'+C+'" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6"/></svg>';
+  [].forEach.call(document.querySelectorAll('[data-play]'),function(slot){
+    slot.innerHTML = ALPHA_URL
+      ? '<a class="cloud" href="'+ALPHA_URL+'" target="_blank" rel="noopener">'+cloud+'<span data-zh="进入十梦邀请制内测">Play the Ten Dreams private alpha</span></a><p class="status" data-zh="邀请制内测，欢迎在游戏里留下反馈。">A private alpha. Feedback is welcome inside the game.</p>'
+      : '<span class="cloud wait">'+cloud+'<span data-zh="十梦内测即将开放">Ten Dreams alpha opening soon</span></span><p class="status" data-zh="试玩链接会放在这里。">The link to play will appear here.</p>';
+  });
+
+  var els=[].slice.call(document.querySelectorAll('[data-zh]')),
+      alts=[].slice.call(document.querySelectorAll('[data-zh-alt]')),
+      shots=[].slice.call(document.querySelectorAll('img[data-l]')),
+      btn=document.getElementById('lang'),zh=false;
+  els.forEach(function(e){e._en=e.innerHTML});
+  alts.forEach(function(e){e._en=e.alt});
+  function set(on){zh=on;document.documentElement.lang=on?'zh-CN':'en';
+    els.forEach(function(e){e.innerHTML=on?e.getAttribute('data-zh'):e._en});
+    alts.forEach(function(e){e.alt=on?e.getAttribute('data-zh-alt'):e._en});
+    shots.forEach(function(e){e.src=e.src.replace(on?'-en.webp':'-zh.webp',on?'-zh.webp':'-en.webp')});
+    var p=document.querySelector('.poem');p.setAttribute('aria-label',on?p.getAttribute('data-zh-label'):'Opening lines');
+    document.title=on?'入梦星空 | 一款关于睡眠的游戏':'Into the Stars | A game about sleep';
+    btn.textContent=on?'EN':'中文';btn.setAttribute('aria-label',on?'Switch to English':'切换到中文');
+    try{localStorage.setItem('as-lang',on?'zh':'en')}catch(_){}}
+  btn.addEventListener('click',function(){set(!zh)});
+  try{if(localStorage.getItem('as-lang')==='zh')set(true)}catch(_){}
+})();
+</script>
+</body>
+</html>
