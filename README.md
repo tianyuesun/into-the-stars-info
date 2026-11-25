@@ -1,4 +1,4 @@
-# Into the Stars 入梦星空
+# Into the Stars
 
 The info page for Into the Stars, a game about the few minutes before sleep.
 
