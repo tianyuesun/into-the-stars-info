@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Into the Stars | A game about sleep</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="https://angelasun-forward.vercel.app/favicon.svg" type="image/svg+xml">
 <meta name="description" content="Into the Stars is a small game about the minutes before sleep. Leap through the clouds, find your own starlight.">
 <meta name="theme-color" content="#15162E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* hero: the art fills the screen, a blurred copy fills the sides */
 .hero{position:relative;min-height:min(100svh,940px);overflow:hidden;display:flex;align-items:center}
-.hero .blur{position:absolute;inset:-40px;background:url(/into-the-stars/img/dreamer-asleep.webp) center/cover;filter:blur(40px) brightness(.55) saturate(1.1)}
+.hero .blur{position:absolute;inset:-40px;background:url(img/dreamer-asleep.webp) center/cover;filter:blur(40px) brightness(.55) saturate(1.1)}
 .hero{background:radial-gradient(50% 60% at 78% 40%,rgba(120,104,210,.25),transparent 70%)}
 .hero .wrap{position:relative;z-index:2;width:100%;display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(24px,5vw,72px);align-items:center;padding-block:110px 80px}
 .hero .art{border-radius:28px;overflow:hidden;box-shadow:0 40px 90px rgba(8,8,30,.55);max-width:470px;justify-self:end}
@@ -173,7 +173,7 @@ html:lang(zh-CN) .zq{font-style:normal;letter-spacing:.1em}
 <body>
 
 <header class="top"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-  <a class="home" href="/" data-zh="安玥">Angela Sun</a>
+  <a class="home" href="https://angelasun-forward.vercel.app/" data-zh="安玥">Angela Sun</a>
   <button type="button" class="lang" id="lang" aria-label="切换到中文">中文</button></div>
 </header>
 
@@ -186,7 +186,7 @@ html:lang(zh-CN) .zq{font-style:normal;letter-spacing:.1em}
         <p class="lede" data-zh="一款关于入睡前那几分钟的小游戏。穿着睡衣的入梦人踩着云往上跳，一夜里穿过十个梦。">A small game about the few minutes before sleep. A dreamer in pajamas climbs from cloud to cloud through ten dreams in a single night.</p>
         <div class="cta" data-play></div>
       </div>
-      <div class="art"><img src="/into-the-stars/img/dreamer-asleep.webp" width="1024" height="1536" alt="A child in a star-print nightcap asleep on a cloud, a small smiling star and a blue spirit beside her" data-zh-alt="戴着星星睡帽的孩子睡在云上，身边是一颗微笑的小星星和一只蓝色小精灵"></div>
+      <div class="art"><img src="img/dreamer-asleep.webp" width="1024" height="1536" alt="A child in a star-print nightcap asleep on a cloud, a small smiling star and a blue spirit beside her" data-zh-alt="戴着星星睡帽的孩子睡在云上，身边是一颗微笑的小星星和一只蓝色小精灵"></div>
     </div>
   </div>
 
@@ -204,15 +204,15 @@ html:lang(zh-CN) .zq{font-style:normal;letter-spacing:.1em}
       <p data-zh="大多数睡眠产品把睡眠当作需要解决的问题。我想反过来试试：睡眠本身能不能就是内容，是可以玩、可以享受的东西，而不是一项要完成的任务？《入梦星空》是我把睡眠做成娱乐 IP 的尝试。">Most sleep products treat sleep as a problem to fix. I wanted to try the opposite: what if sleep itself could be the content, something to play with and enjoy rather than a task to complete? Into the Stars is my attempt to turn sleep into an entertainment IP.</p>
     </div>
     <div class="screens">
-      <figure><img data-l src="/into-the-stars/img/start-en.webp" width="600" height="1298" loading="lazy" alt="The start screen of the game" data-zh-alt="游戏开始界面"><figcaption data-zh="开始界面">The start screen</figcaption></figure>
-      <figure><img data-l src="/into-the-stars/img/map-en.webp" width="600" height="1298" loading="lazy" alt="The map of ten dreams, from First Starlight to Crown of Dreams" data-zh-alt="十梦地图，从初入星空到梦境之巅"><figcaption data-zh="一夜里的十个梦">Ten dreams in a single night</figcaption></figure>
-      <figure class="wide"><img src="/into-the-stars/img/finish.webp" width="720" height="831" loading="lazy" alt="Gameplay: the dreamer leaps between soft clouds toward a line of starlight" data-zh-alt="游戏画面：入梦人在柔软的云朵间跳跃，前方是一条星光线"><figcaption data-zh="一个梦的尽头，会亮起一条星光线">Each dream ends at a line of starlight</figcaption></figure>
+      <figure><img data-l src="img/start-en.webp" width="600" height="1298" loading="lazy" alt="The start screen of the game" data-zh-alt="游戏开始界面"><figcaption data-zh="开始界面">The start screen</figcaption></figure>
+      <figure><img data-l src="img/map-en.webp" width="600" height="1298" loading="lazy" alt="The map of ten dreams, from First Starlight to Crown of Dreams" data-zh-alt="十梦地图，从初入星空到梦境之巅"><figcaption data-zh="一夜里的十个梦">Ten dreams in a single night</figcaption></figure>
+      <figure class="wide"><img src="img/finish.webp" width="720" height="831" loading="lazy" alt="Gameplay: the dreamer leaps between soft clouds toward a line of starlight" data-zh-alt="游戏画面：入梦人在柔软的云朵间跳跃，前方是一条星光线"><figcaption data-zh="一个梦的尽头，会亮起一条星光线">Each dream ends at a line of starlight</figcaption></figure>
     </div>
     <div class="shelf">
-      <div class="grp t"><p class="cat" data-zh="道具">Dream tools</p><div class="row"><img src="/into-the-stars/img/a-it_shield.webp" width="96" height="82" alt="" loading="lazy" style="animation-delay:0.0s"><img src="/into-the-stars/img/a-it_magnet.webp" width="96" height="96" alt="" loading="lazy" style="animation-delay:5.1s"><img src="/into-the-stars/img/a-it_balloon.webp" width="86" height="96" alt="" loading="lazy" style="animation-delay:4.2s"><img src="/into-the-stars/img/a-it_chime.webp" width="96" height="89" alt="" loading="lazy" style="animation-delay:3.3s"><img src="/into-the-stars/img/a-it_compass.webp" width="87" height="96" alt="" loading="lazy" style="animation-delay:2.4s"><img src="/into-the-stars/img/a-it_cannon.webp" width="96" height="88" alt="" loading="lazy" style="animation-delay:1.5s"></div></div>
-      <div class="grp t"><p class="cat" data-zh="收集">Collectibles</p><div class="row"><img src="/into-the-stars/img/a-c_star.webp" width="64" height="63" alt="" loading="lazy" style="animation-delay:0.6s"><img src="/into-the-stars/img/a-c_dust.webp" width="64" height="67" alt="" loading="lazy" style="animation-delay:5.7s"><img src="/into-the-stars/img/a-c_core.webp" width="64" height="67" alt="" loading="lazy" style="animation-delay:4.8s"><img src="/into-the-stars/img/a-c_special.webp" width="84" height="86" alt="" loading="lazy" style="animation-delay:3.9s"><img src="/into-the-stars/img/a-c_atlas.webp" width="96" height="74" alt="" loading="lazy" style="animation-delay:3.0s"></div></div>
-      <div class="grp m"><p class="cat" data-zh="小怪">Creatures</p><div class="row"><img src="/into-the-stars/img/a-wisp.webp" width="146" height="104" alt="" loading="lazy" style="animation-delay:2.1s"><img src="/into-the-stars/img/a-bat.webp" width="150" height="86" alt="" loading="lazy" style="animation-delay:1.2s"><img src="/into-the-stars/img/a-jelly.webp" width="120" height="115" alt="" loading="lazy" style="animation-delay:0.3s"><img src="/into-the-stars/img/a-sprite.webp" width="136" height="116" alt="" loading="lazy" style="animation-delay:5.4s"></div></div>
-      <div class="grp g"><p class="cat" data-zh="守护者">Guardians</p><div class="row"><img src="/into-the-stars/img/a-skywing.webp" width="380" height="195" alt="" loading="lazy" style="animation-delay:4.5s"><img src="/into-the-stars/img/a-queen.webp" width="165" height="300" alt="" loading="lazy" style="animation-delay:3.6s"><img src="/into-the-stars/img/a-storm.webp" width="360" height="290" alt="" loading="lazy" style="animation-delay:2.7s"></div></div>
+      <div class="grp t"><p class="cat" data-zh="道具">Dream tools</p><div class="row"><img src="img/a-it_shield.webp" width="96" height="82" alt="" loading="lazy" style="animation-delay:0.0s"><img src="img/a-it_magnet.webp" width="96" height="96" alt="" loading="lazy" style="animation-delay:5.1s"><img src="img/a-it_balloon.webp" width="86" height="96" alt="" loading="lazy" style="animation-delay:4.2s"><img src="img/a-it_chime.webp" width="96" height="89" alt="" loading="lazy" style="animation-delay:3.3s"><img src="img/a-it_compass.webp" width="87" height="96" alt="" loading="lazy" style="animation-delay:2.4s"><img src="img/a-it_cannon.webp" width="96" height="88" alt="" loading="lazy" style="animation-delay:1.5s"></div></div>
+      <div class="grp t"><p class="cat" data-zh="收集">Collectibles</p><div class="row"><img src="img/a-c_star.webp" width="64" height="63" alt="" loading="lazy" style="animation-delay:0.6s"><img src="img/a-c_dust.webp" width="64" height="67" alt="" loading="lazy" style="animation-delay:5.7s"><img src="img/a-c_core.webp" width="64" height="67" alt="" loading="lazy" style="animation-delay:4.8s"><img src="img/a-c_special.webp" width="84" height="86" alt="" loading="lazy" style="animation-delay:3.9s"><img src="img/a-c_atlas.webp" width="96" height="74" alt="" loading="lazy" style="animation-delay:3.0s"></div></div>
+      <div class="grp m"><p class="cat" data-zh="小怪">Creatures</p><div class="row"><img src="img/a-wisp.webp" width="146" height="104" alt="" loading="lazy" style="animation-delay:2.1s"><img src="img/a-bat.webp" width="150" height="86" alt="" loading="lazy" style="animation-delay:1.2s"><img src="img/a-jelly.webp" width="120" height="115" alt="" loading="lazy" style="animation-delay:0.3s"><img src="img/a-sprite.webp" width="136" height="116" alt="" loading="lazy" style="animation-delay:5.4s"></div></div>
+      <div class="grp g"><p class="cat" data-zh="守护者">Guardians</p><div class="row"><img src="img/a-skywing.webp" width="380" height="195" alt="" loading="lazy" style="animation-delay:4.5s"><img src="img/a-queen.webp" width="165" height="300" alt="" loading="lazy" style="animation-delay:3.6s"><img src="img/a-storm.webp" width="360" height="290" alt="" loading="lazy" style="animation-delay:2.7s"></div></div>
     </div>
   </section>
 
@@ -276,7 +276,7 @@ html:lang(zh-CN) .zq{font-style:normal;letter-spacing:.1em}
   </section>
 
   <section class="wrap made">
-    <img src="/into-the-stars/img/dreamer-leap.webp" width="1024" height="1536" loading="lazy" alt="The dreamer leaping from a cloud toward a glowing star" data-zh-alt="入梦人从云上跃向一颗发光的星星">
+    <img src="img/dreamer-leap.webp" width="1024" height="1536" loading="lazy" alt="The dreamer leaping from a cloud toward a glowing star" data-zh-alt="入梦人从云上跃向一颗发光的星星">
     <div>
       <h2 data-zh="它是怎么做出来的">How it is made</h2>
       <div class="prose">
@@ -292,7 +292,7 @@ html:lang(zh-CN) .zq{font-style:normal;letter-spacing:.1em}
   <section class="wrap end">
     <h2 data-zh="每一次跃起，都是一场新的发现。">Every leap brings a new discovery.</h2>
     <div class="cta" data-play></div>
-    <p><a class="back" href="/" data-zh="回到四个项目">Back to all four projects</a></p>
+    <p><a class="back" href="https://angelasun-forward.vercel.app/" data-zh="回到四个项目">Back to all four projects</a></p>
   </section>
 </main>
 
